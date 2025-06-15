@@ -1,0 +1,39 @@
+[project]
+name = "macro-mancer"
+version = "0.1.0"
+description = "Macroeconomic news analysis system using ADK agents"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+dependencies = [
+    "google-cloud-secret-manager>=2.16.1",
+    "google-cloud-sql-connector>=1.2.0",
+    "sqlalchemy>=2.0.0",
+    "pydantic>=2.0.0",
+    "psycopg2-binary>=2.9.9",
+    "feedparser>=6.0.10",
+    "python-dotenv>=1.0.0",
+    "google-generativeai>=0.3.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "mcp-toolbox-sdk>=0.1.0",
+    "adk-sdk>=0.1.0",
+]
+requires-python = ">=3.9"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=src"
