@@ -1,0 +1,113 @@
+{
+  "eval_set_id": "macro_mancer_basic_eval",
+  "name": "macro_mancer_basic_eval",
+  "description": "Basic evaluation for Macro Mancer agent",
+  "eval_cases": [
+    {
+      "eval_id": "test_agent_introduction",
+      "conversation": [
+        {
+          "invocation_id": "e-test-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Who are you?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "I am a Macroeconomic News Analysis System. I can fetch news articles from RSS feeds and analyze them for market impacts."
+              }
+            ],
+            "role": null
+          },
+          "intermediate_data": {
+            "tool_uses": [],
+            "intermediate_responses": []
+          },
+          "creation_timestamp": 1748011266.735581
+        }
+      ],
+      "session_input": {
+        "app_name": "macro_mancer",
+        "user_id": "test_user",
+        "state": {}
+      },
+      "creation_timestamp": 1748011280.510737
+    },
+    {
+      "eval_id": "test_news_fetching",
+      "conversation": [
+        {
+          "invocation_id": "e-test-2",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Fetch the latest news articles"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "I'll fetch the latest news articles from the configured RSS feeds for you."
+              }
+            ],
+            "role": null
+          },
+          "intermediate_data": {
+            "tool_uses": [],
+            "intermediate_responses": []
+          },
+          "creation_timestamp": 1748011266.735581
+        }
+      ],
+      "session_input": {
+        "app_name": "macro_mancer",
+        "user_id": "test_user",
+        "state": {}
+      },
+      "creation_timestamp": 1748011280.510737
+    },
+    {
+      "eval_id": "test_agent_capabilities",
+      "conversation": [
+        {
+          "invocation_id": "e-test-3",
+          "user_content": {
+            "parts": [
+              {
+                "text": "What can you do?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "I can fetch news articles from RSS feeds, analyze them for market impacts, and help you understand macroeconomic trends."
+              }
+            ],
+            "role": null
+          },
+          "intermediate_data": {
+            "tool_uses": [],
+            "intermediate_responses": []
+          },
+          "creation_timestamp": 1748011266.735581
+        }
+      ],
+      "session_input": {
+        "app_name": "macro_mancer",
+        "user_id": "test_user",
+        "state": {}
+      },
+      "creation_timestamp": 1748011280.510737
+    }
+  ],
+  "creation_timestamp": 1748011130.5057902
+} 

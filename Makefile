@@ -76,6 +76,9 @@ test:
 run-adk-web:
 	adk web --project-id $(ADK_PROJECT_ID) --location $(ADK_LOCATION)
 
+run-adk-web-local:
+	python scripts/test_adk_web.py
+
 deploy-agents:
 	adk deploy --project-id $(ADK_PROJECT_ID) --location $(ADK_LOCATION) src/agents/
 

@@ -1,52 +1,53 @@
 import os
 from datetime import datetime
-from google.adk.agents import Agent, LlmAgent, AgentContext
-from google.adk.types import GenerateContentConfig
-from .tools import RSSFeedTool, DatabaseTool
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
+from .tools import rss_tool
 from typing import Dict, Any
-
-# Create tools
-rss_tool = RSSFeedTool()
-db_tool = DatabaseTool()
 
 # Create the news fetcher agent
 news_fetcher = Agent(
     name="news_fetcher",
     description="Fetches and processes news articles from RSS feeds",
     tools=[rss_tool],
-    output_key="articles"  # Specify the output key for the articles
-)
-
-# Create the analyzer agent
-analyzer = LlmAgent(
-    name="analyzer",
-    model="gemini-pro",
-    description="Analyzes news articles for market impact",
+    output_key="articles",  # Specify the output key for the articles
+    disallow_transfer_to_parent=True,  # Prevent transferring back to parent
     instruction="""
-    Analyze the provided news article and identify potential impacts on entities.
-    For each impact, provide:
-    1. Entity: The company, sector, or market affected
-    2. Type: The type of impact (e.g., regulatory, market, operational)
-    3. Impact: One of ['strong positive', 'positive', 'strong negative', 'negative']
-    4. Impact Description: A brief explanation of the impact
-    
-    Format the response as a JSON array of objects with these fields.
-    """,
-    generate_content_config=GenerateContentConfig(temperature=0.2)
+    You are a news fetching agent. 
+    When you receive a request for news, ALWAYS use the fetch_rss_news tool to get the latest articles from the configured RSS feeds.
+    Do not transfer to other agents - you are the expert for fetching news.
+    Always call the fetch_rss_news tool and return the results to the user.
+    """
 )
 
-# Create the database writer agent
-db_writer = Agent(
-    name="db_writer",
-    description="Writes impact records to the database",
-    tools=[db_tool],
-    output_key="write_status"
+# Create the news analyzer agent
+news_analyzer = Agent(
+    name="news_analyzer",
+    description="Analyzes individual news articles for market impact and sentiment",
+    disallow_transfer_to_parent=True,
+    instruction="""
+    You are a financial news analyzer agent.
+    When you receive a news article, analyze it for:
+    1. Market impact potential (high/medium/low)
+    2. Sentiment (positive/negative/neutral)
+    3. Key entities mentioned (companies, sectors, currencies)
+    4. Potential trading implications
+    5. Risk factors
+    
+    Provide a structured analysis in JSON format with these fields:
+    - impact_level: high/medium/low
+    - sentiment: positive/negative/neutral
+    - entities: list of companies/sectors mentioned
+    - trading_implications: brief analysis
+    - risk_factors: any risks identified
+    - confidence_score: 0-100
+    """
 )
 
 # Create the root coordinator agent
 root_agent = Agent(
     name="macro_mancer",
-    model="gemini-pro",
+    model="gemini-2.0-flash-exp",  # Local model, no API key needed
     description="A system for analyzing macroeconomic news and its market impact",
     instruction=f"""
     You are a Macroeconomic News Analysis System.
@@ -57,48 +58,16 @@ root_agent = Agent(
     2. Analyze each article for potential market impacts
     3. Store the impact analysis in the database
     
+    When asked to fetch news, transfer the request to the news_fetcher agent.
+    When asked to analyze news, transfer to the news_analyzer agent.
     Coordinate with your sub-agents to accomplish this task.
     """,
     sub_agents=[
         news_fetcher,
-        analyzer,
-        db_writer
-    ],
-    generate_content_config=GenerateContentConfig(temperature=0.1)
+        news_analyzer,
+    ]
 )
 
-async def process_news(context: AgentContext) -> Dict[str, Any]:
-    """Process news articles through the agent system."""
-    # Fetch news
-    news_context = AgentContext(input_data={}, metadata=context.metadata)
-    news_result = await news_fetcher.process(news_context)
-    
-    if not news_result.get("articles"):
-        return {"status": "error", "message": "No articles found"}
-    
-    # Process each article
-    impact_records = []
-    for article in news_result["articles"]:
-        # Analyze article
-        analysis_context = AgentContext(
-            input_data={"article": article},
-            metadata=context.metadata
-        )
-        analysis_result = await analyzer.process(analysis_context)
-        
-        if analysis_result.get("impact_records"):
-            # Write to database
-            for record in analysis_result["impact_records"]:
-                db_context = AgentContext(
-                    input_data={"impact_record": record},
-                    metadata=context.metadata
-                )
-                db_result = await db_writer.process(db_context)
-                if db_result.get("write_status") == "success":
-                    impact_records.append(record)
-    
-    return {
-        "status": "success",
-        "articles_processed": len(news_result["articles"]),
-        "impact_records_written": len(impact_records)
-    } 
+# Alias for ADK eval compatibility
+agent = root_agent
+
