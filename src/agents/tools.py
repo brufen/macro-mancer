@@ -4,6 +4,7 @@ import httpx
 from datetime import datetime, timedelta
 import os
 from google.adk.tools import FunctionTool
+import pandas as pd
 from google.adk.tools.tool_context import ToolContext
 
 async def fetch_rss_news(*, tool_context: Optional[object] = None) -> Dict[str, Any]:
@@ -65,6 +66,11 @@ async def fetch_rss_news(*, tool_context: Optional[object] = None) -> Dict[str, 
         "fetched_at": datetime.now().isoformat(),
         "format": "structured_list"
     }
+
+
+def process_analysis(assets, scopes,macros):
+    return scopes
+
 
 # Create the tool using FunctionTool
 rss_tool = FunctionTool(func=fetch_rss_news)
