@@ -68,8 +68,8 @@ async def fetch_rss_news(*, tool_context: Optional[object] = None) -> Dict[str, 
     }
 
 
-def process_analysis(assets, scopes,macros):
-    return scopes
+def process_analysis(res):
+    return [ e for e in res if e["type"]=="Asset"]
 
 
 # Create the tool using FunctionTool

@@ -63,29 +63,43 @@ We want to evaluate the impact of the articles on various entity types on the fo
 
 Based on this categorisation do the followings :
 
-1. "Asset": what kind of impact does the article has on the valuation of the mentioned assets or asset class? Also collect "tags", and location of operations. Summerize very shortly the article, and add the link of the article to the results too. Save the timestamp of the article too.
+1. "Asset": what kind of impact does the article has on the valuation of the mentioned assets?ion of operations. Summerize very shortly the article, and add the link of the article to the results too. Save the timestamp of the article too.
 
 For example a single asset might have the following description:
 
-{"type":"Asset","Summary":<summary>,"link":<link>,"Name":<Name>,"Ticker":<ticker> "tags":[<Scope1>,<Scope2>],"location":[<location1>,<location2>],"impact":<impact>,"timestamp":<timestamp> }
+{"type":"Asset","Summary":<summary>,"link":<link>,"Name":<Name>,"Ticker":<ticker>,"impact":<impact>,"timestamp":<timestamp> }
+
+Also collect "tags", for the mentioned assets, that desrcibes what businesses they operate on on the valuation of the mentioned assets.
+[{"type":"Tag", "Asset":<Ticker>,"Scope":<Scope1> },
+{"type":"Tag", "Asset":<Ticker>,"Scope":<Scope2> },
+{"type":"Tag", "Asset":<Ticker>,"Scope":<Scope3> }]
+
+Also collect "locations", that are relevant to the asset:
+[{"type":"Location", "Asset":<Ticker>,"Scope":<Location1> },
+{"type":"Location", "Asset":<Ticker>,"Scope":<Location2> }]
 
 
-2. "Scope": What kind of impact does the article has on the mentined asset classes or businesses? Collect "tags", that is a list keywords, what asset class and what business areas are also affected by those asset classes or entities that are mentioned in the article. Aslo add the geographical localisation.  Save the timestamp of the article too.
 
-{"type":"Scope","Scope":<Scope>,"Summary":<summary>,"link":<link>,"tags":[<Scope1>,<Scope2>],"location":[<location1>,<location2>],"impact":<impact>,"timestamp":<timestamp> }
-}
+2. "Scope": What kind of impact does the article has on the mentioned asset classes or businesses?  Also add the geographical localisation.  Save the timestamp of the article too.
+
+{"type":"Scope","Scope":<Scope>,"Summary":<summary>,"link":<link>,"location":<location1>,"impact":<impact>,"timestamp":<timestamp> }
+
+If the mentioned scopes are strongly connected other business areas create entities as follows:
+{"type":"ScopeRelation","Scope1":<Scope>,"Scope2",<Scope2>},
 
 
+3. "Macro": What kind of impact does the article has, what asset classes what business areas and geographical locations("tags" and "location"-s) are affected and how. Create separate entry for each of the tags pairs of tags and  locations.  Save the timestamp of the article too.
 
-3. "Macro": What kind of impact does the article has, what asset classes what business ares and geographical locations("tags" and "location"-s) are affected and how. Save the timestamp of the article too.
+[{"type":"Macro","Summary":<summary>,"link":<link>,"Scope":<Scope1>,"Location":<location1>,"impact":<impact>,"timestamp":<timestamp> },
+{"type":"Macro","Summary":<summary>,"link":<link>,"Scope":<Scope2>,"Location":<location1>,"impact":<impact>,"timestamp":<timestamp> },
+...
+]
 
-{"type":"Macro","Summary":<summary>,"link":<link>,"tags":[<Scope1>,<Scope2>],"location":[<location1>,<location2>],"impact":<impact>,"timestamp":<timestamp> }
-}
 
 
 If an article is about multiple entities, generate a result object for all the mentioned entities.
 
-Concatanate the output lists of objects per categories and return them in a single json object.
+Concatanate all the output lists into a single output list and return it. 
 
  
 """
