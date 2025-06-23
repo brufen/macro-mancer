@@ -66,35 +66,31 @@ resource "google_sql_user" "user" {
   password = random_password.db_password.result
 }
 
-resource "null_resource" "create_tables" {
-  depends_on = [google_sql_database.database]
+# Note: Tables will be created by SQLAlchemy's create_tables() function
+# This approach lets the application handle schema management 
 
-  provisioner "local-exec" {
-    command = <<-EOT
-      # Start Cloud SQL Auth proxy in the background
-      cloud-sql-proxy ${google_sql_database_instance.postgres.connection_name} &
-      PROXY_PID=$!
-      
-      # Wait for the proxy to start
-      sleep 5
-      
-      # Create the table
-      export PGPASSWORD='${replace(random_password.db_password.result, "'", "'\\''")}'
-      psql -h localhost -p 5432 \
-      -U ${var.db_user} \
-      -d ${var.database_name} \
-      -c "
-      CREATE TABLE IF NOT EXISTS impact (
-        entity VARCHAR(50) NOT NULL,
-        type VARCHAR(50) NOT NULL,
-        impact VARCHAR(20) CHECK (impact IN ('strong positive', 'positive', 'strong negative', 'negative')),
-        impact_description TEXT,
-        inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );"
-      
-      # Kill the proxy
-      kill $PROXY_PID
-    EOT
-  }
+# Outputs for database connection
+output "instance_connection_name" {
+  description = "The connection name of the instance"
+  value       = google_sql_database_instance.postgres.connection_name
+}
+
+output "instance_ip_address" {
+  description = "The public IP address of the instance"
+  value       = google_sql_database_instance.postgres.public_ip_address
+}
+
+output "database_name" {
+  description = "The name of the database"
+  value       = google_sql_database.database.name
+}
+
+output "db_user" {
+  description = "The database user name"
+  value       = google_sql_user.user.name
+}
+
+output "db_password_secret_id" {
+  description = "The secret manager ID for the database password"
+  value       = google_secret_manager_secret.db_password.secret_id
 } 

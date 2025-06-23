@@ -82,21 +82,3 @@ run-adk-web-local:
 deploy-agents:
 	adk deploy --project-id $(ADK_PROJECT_ID) --location $(ADK_LOCATION) src/agents/
 
-# Prerequisites
-# 1. Install Google Cloud SDK: https://cloud.google.com/sdk/docs/install
-# 2. Run these commands in order:
-#    - gcloud auth login
-#    - gcloud config set project YOUR_PROJECT_ID
-#    - gcloud auth application-default login
-# 3. Set your project ID in terraform.tfvars
-
-# gcloud auth login
-# gcloud config set project YOUR_PROJECT_ID
-
-# gcloud services enable sqladmin.googleapis.com \
-#   compute.googleapis.com \
-#   iam.googleapis.com
-
-# gcloud services enable secretmanager.googleapis.com
-# cloud-sql-proxy YOUR_INSTANCE_CONNECTION_NAME
-# psql -h localhost -p 5432 -U macro_mancer_user -d macro_mancer
