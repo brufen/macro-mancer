@@ -1,24 +1,39 @@
 import os
 from datetime import datetime
-from google.adk.agents import Agent
+
+from google.adk import Runner
+from google.adk.agents import Agent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
-from .tools import rss_tool, process_analysis
+from google.adk.tools import google_search
+
+from google.adk.sessions import InMemorySessionService
+
+from .tools import rss_tool, process_analysis,get_last_update_time
 from typing import Dict, Any
+GEMINI_MODEL= "gemini-2.0-flash-exp"
+
+NEWS_FETCHER_PROMPT="""
+    You are a news fetching agent. 
+    Your ONLY task is, when you receive a request for news, ALWAYS use the fetch_rss_news tool to get the latest articles from the configured RSS feeds.
+    """
+
+ORIG_NEWS_FETCHER_PROMPT="""
+    You are a news fetching agent. 
+    Your ONLY task is, when you receive a request for news, ALWAYS use the fetch_rss_news tool first to get the latest articles from the configured RSS feeds. If you dont get any news from there, try to pull news using Google Search, that are posted after the cutoff time given by 'get_last_update_time' tool.
+    Do not transfer to other agents - you are the expert for fetching news.
+    """
 
 # Create the news fetcher agent
 news_fetcher = Agent(
     name="news_fetcher",
+    model=GEMINI_MODEL,
     description="Fetches and processes news articles from RSS feeds",
     tools=[rss_tool],
     output_key="articles",  # Specify the output key for the articles
     disallow_transfer_to_parent=True,  # Prevent transferring back to parent
-    instruction="""
-    You are a news fetching agent. 
-    When you receive a request for news, ALWAYS use the fetch_rss_news tool to get the latest articles from the configured RSS feeds.
-    Do not transfer to other agents - you are the expert for fetching news.
-    Always call the fetch_rss_news tool and return the results to the user.
-    """
+    instruction=NEWS_FETCHER_PROMPT
 )
+
 
 
 # TODO we should dongrade the results into list of simple dicts:
@@ -26,7 +41,7 @@ news_fetcher = Agent(
 
 ANALYSIS_PROMPT_PETER="""
 You are a financial analyzer. 
-When you receive a list of news article, analyze each the following ways:
+When you receive news articles, your ONLY task is to analyze each the following ways:
 
 In order to judge what macroeconomic event or economic trend influences the valuation of treadable assets, for each of these assets we want to know
 - what asset class it belongs to (Stock, crypto, commodity, etc),
@@ -99,7 +114,7 @@ If the mentioned scopes are strongly connected other business areas create entit
 
 If an article is about multiple entities, generate a result object for all the mentioned entities.
 
-Concatanate all the output lists into a single output list and return it. 
+Concatanate all the output lists into a single output list, and save it into the session state under the key 'analysis_result'. 
 
  
 """
@@ -124,9 +139,11 @@ ORIG_ANALYSER_PROMPT="""
 
 recommender=Agent(
     name="recommender",
-    description="Agent to mock updating the database with the result of the analysis, then return the best assets",
+    model=GEMINI_MODEL,
+    description="Agent to recommend assets",
     disallow_transfer_to_parent = True,
-    instruction="When you receive an analysis object pass it to 'process_analysis' for processing and return the result. If the function fails, print out what did you pass.",
+    #instruction="YourPass information provided in the session state under the key 'analyis_result' to 'process_analysis' tool. nad return the output of that function.",
+    instruction="You are a financial asset recommender agent. Your ONLY task is to give recommendation after always call 'process_analysis' tool. The tool return a list of json objects, where 'Ticker' contains the ticker of assets, 'weight' describes a score for potential of the asset, and link contains links to the interesting articles. Make recommendation based on this table. Pick assets based the highest scores, and add links from the objects as refernce."  ,
     tools = [process_analysis]
 
 )
@@ -142,12 +159,15 @@ recommender=Agent(
 # Create the news analyzer agent
 news_analyzer = Agent(
     name="news_analyzer",
+    model=GEMINI_MODEL,
     description="Analyzes individual news articles for market impact and sentiment",
     #disallow_transfer_to_parent=True,
+    output_key='analysis_result',
     instruction=ANALYSIS_PROMPT_PETER
 )
 
 # Create the root coordinator agent
+'''
 root_agent = Agent(
     name="macro_mancer",
     model="gemini-2.0-flash-exp",  # Local model, no API key needed
@@ -156,14 +176,18 @@ root_agent = Agent(
     You are a Macroeconomic News Analysis System.
     Today's date: {datetime.now().strftime('%Y-%m-%d')}
     
-    Your task is to:
+    Your task is ONLY task is to  to do one of the followings:
     1. Fetch recent news articles from configured RSS feeds
     2. Analyze each article for potential market impacts and write to database
-    3. Recommend assets with biggest potential
+    3. Recommend financial assets to buy, based on the latest news articles
+    
+    For each of the tasks, you must have executed the previous tasks.
+    
+    
     
     When asked to fetch news, transfer the request to the news_fetcher agent.
-    When asked to analyze news, transfer to the news_analyzer agent.
-    When asked for recommendations, after fetching and analyzing the result of the analysis news transfer to recommender agent.
+    When asked to analyze news, if it did not happen yet, donwload the new using 'news_fetcher' agent, then transfer to the news_analyzer agent.
+    When asked to give recommendations run 'news_fetcher' and 'news_analyzer' agent, if it did not happen happen yet, then transfer to 'recommender' agent
     
     
     Coordinate with your sub-agents to accomplish this task.
@@ -172,10 +196,14 @@ root_agent = Agent(
         news_fetcher,
         news_analyzer,
         recommender
-
     ]
 )
+'''
 
-# Alias for ADK eval compatibility
-agent = root_agent
+root_agent = SequentialAgent(
+    name="CodePipelineAgent",
+    sub_agents=[news_fetcher, news_analyzer, recommender]
+)
+
+#Could you please recommend me some financial assets based on the latest news?
 
