@@ -7,7 +7,7 @@ uv run adk eval src/agents/ src/agents/eval/basic_eval.json --print_detailed_res
 -  uv sync
 -  uv run adk web
    type: "Fetch news and then analyze each article for market impact"
--  ( new prompt: "Could you please recommend me some financial assets based on the latest news?")
+-  ( new prompt: ***"Could you please recommend me some financial assets based on the latest news?"***)
 
 Next Steps
 open localhost  http://127.0.0.1:8000/dev-ui/?app=src
@@ -31,6 +31,8 @@ We incorporate the freshness of sentiment scores, using an *exponential decay fa
 The sentiment scores of the two latter category (business areas and macro ) are propagated to the individual assets, using the ```location```of operation and the ```scopes```, that describe the assets.
 
 ## TODO:
- - go back in time enough - rs index limited aritcle count
+ - not enough articles- rss index limited lookback
+   - *solution 1* automatic pull
+   - *solution 2* scrapper
  - store the previous articles until their weight does not go to 0
  - work on influences, now only location is used to map influence of macros

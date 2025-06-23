@@ -16,7 +16,10 @@ dependencies = [
     "ollama>=0.5.1",
     "httpx>=0.28.1",
     "pandas",
-    "joblib"
+    "joblib",
+    "bs4",
+    "newspaper3k"
+
 ]
 requires-python = ">=3.12"
 
