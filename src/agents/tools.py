@@ -137,14 +137,15 @@ def make_recommendation(input_str, db_simulation=False):
     assets['age'] = (most_recent_ts - assets['timestamp']).apply(lambda x: x.total_seconds() / 3600)
     assets['weight'] = (0.99 ** assets['age']) * assets['impact']
 
-    assets_final = assets[['Ticker', 'weight', 'link']]
+    assets_final = assets[['Ticker', 'weight', 'link','Summary']]
 
     # location decribes a localisation of the asset, this what we use as an example for proőpagation
     macro_final = macro.merge(locations, on='Location', how='inner')
 
-    macro_final = macro_final[['Asset', 'weight', 'link']]
+    macro_final = macro_final[['Asset', 'weight', 'link','Summary']]
     macro_final.rename(columns={'Asset': 'Ticker', 'weight': 'w_impact'}, inplace=True)
     res = pd.concat([assets_final, macro_final])
+    res['reference']=res['Summary']+'->'+res['link']
 
     return res.groupby('Ticker').agg({
         'weight': 'sum',

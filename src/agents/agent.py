@@ -15,6 +15,7 @@ GEMINI_MODEL= "gemini-2.0-flash-exp"
 NEWS_FETCHER_PROMPT="""
     You are a news fetching agent. 
     Your ONLY task is, when you receive a request for news, ALWAYS use the fetch_rss_news tool to get the latest articles from the configured RSS feeds.
+    Do not do anything else, analysis and recommendations will be made by other agents.
     """
 
 ORIG_NEWS_FETCHER_PROMPT="""
@@ -143,7 +144,10 @@ recommender=Agent(
     description="Agent to recommend assets",
     disallow_transfer_to_parent = True,
     #instruction="YourPass information provided in the session state under the key 'analyis_result' to 'process_analysis' tool. nad return the output of that function.",
-    instruction="You are a financial asset recommender agent. Your ONLY task is to give recommendation after always call 'process_analysis' tool. The tool return a list of json objects, where 'Ticker' contains the ticker of assets, 'weight' describes a score for potential of the asset, and link contains links to the interesting articles. Make recommendation based on this table. Pick assets based the highest scores, and add links from the objects as refernce."  ,
+    instruction="""You are a financial asset recommender agent. 
+    Your ONLY task is to give recommendation after always call 'process_analysis' tool.
+    The tool return a list of json objects, where 'Ticker' contains the ticker of assets, 'weight' describes a score for potential of the asset, and 'reference' contains a short summary and a link to the aricle, connected by "->".
+    Make recommendation based on this table. Pick assets based the highest scores, and show the score and the list of summaries as references. Add a link to each summary items, that redirects to the article described by that given summary. """,
     tools = [process_analysis]
 
 )
