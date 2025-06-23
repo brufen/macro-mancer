@@ -3,7 +3,8 @@ name = "macro-mancer"
 version = "0.1.0"
 description = "Macroeconomic news analysis system using ADK agents"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "Marija Grozdanic"},
+    {name = "Peter Kiss"}
 ]
 dependencies = [
     "sqlalchemy>=2.0.0",
@@ -12,14 +13,11 @@ dependencies = [
     "feedparser>=6.0.10",
     "python-dotenv>=1.0.0",
     "google-adk[eval]>=1.4.2",
-    "litellm>=1.72.9",
-    "ollama>=0.5.1",
     "httpx>=0.28.1",
     "pandas>=2.2.3",
     "joblib>=1.4.2",
-    "bs4>=4.12.3",
-    "newspaper3k>=0.2.8"
-
+    "newspaper3k>=0.2.8",
+    "litellm>=1.73.0",
 ]
 requires-python = ">=3.12"
 
