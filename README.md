@@ -100,6 +100,7 @@ are propagated to the individual assets, using the ```location```of operation an
 
 
 
+### Architecure: 
 
 
 
