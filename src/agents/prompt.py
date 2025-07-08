@@ -52,7 +52,7 @@ the following scale:
 Based on this categorisation do the followings :
 
 1. "Asset": what kind of impact does the article has on the valuation of the
-mentioned assets?ion of operations. Summerize very shortly the article,
+mentioned assets?ion of operations. Summarize very shortly the article,
 and add the link of the article to the results too. Save the timestamp of
 the article too.
 
